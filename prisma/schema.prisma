@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  STAFF_GUDANG
+  SUPERVISOR_PRODUKSI
+  LEADER_PRODUKSI
+}
+
+enum SatuanBahan {
+  PCS
+  METER
+  KG
+  ROLL
+  CONE
+  PACK
+  YARD
+}
+
+enum StatusKonfirmasi {
+  PENDING
+  DISETUJUI
+  DITOLAK
+}
+
+model Users {
+  id                  Int      @id @default(autoincrement())
+  nik                 String   @unique
+  role                Role
+  name                String
+  password            String
+  email               String   @unique
+  avatar              String?
+  isActive            Boolean @default(true)
+  createdAt           DateTime @default(now())
+  transaksiBahanMasuk   TransaksiBahanMasuk[]
+  transaksiBahanSisa    TransaksiBahanSisa[]
+}
+
+model Bahan {
+  id                  String @id
+  name                String   @unique
+  stok                Float
+  jumlahMinimum       Float
+  satuan              SatuanBahan
+  isActive            Boolean @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  bahanMasuk          BahanMasuk[]
+  bahanSisa           BahanSisa[]
+}
+
+model TransaksiBahanMasuk {
+  id            String @id
+  userId        Int
+  user          Users @relation(fields: [userId], references: [id])
+  tanggalMasuk  DateTime @default(now())
+  supplier      String?
+  catatan       String?
+  konfirmasi    Boolean @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  bahanMasuk    BahanMasuk[]
+}
+
+model BahanMasuk {
+  id                  Int @id @default(autoincrement())
+  transaksiId         String
+  transaksi           TransaksiBahanMasuk @relation(fields: [transaksiId], references: [id])
+  bahanId             String
+  bahan               Bahan @relation(fields: [bahanId], references: [id])
+  jumlah              Float
+  createdAt           DateTime @default(now())
+  @@unique([transaksiId, bahanId])
+}
+
+model TransaksiBahanSisa {
+  id                  String @id
+  userId              Int
+  user                Users @relation(fields: [userId], references: [id])
+  status              StatusKonfirmasi @default(PENDING)
+  catatan             String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  detailBahanSisa     BahanSisa[]
+}
+
+model BahanSisa {
+  id                  Int @id @default(autoincrement())
+  transaksiId         String
+  transaksi           TransaksiBahanSisa @relation(fields: [transaksiId], references: [id])
+  bahanId             String
+  bahan               Bahan @relation(fields: [bahanId], references: [id])
+  jumlahDipakai       Float
+  jumlahSisa          Float @default(0)
+  createdAt           DateTime @default(now())
+  @@unique([transaksiId, bahanId])
+}
