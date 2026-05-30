@@ -8,7 +8,7 @@ function generateNik() {
 }
 
 async function main() {
-  const hashedPassword = await bcrypt.hash('123456', 10)
+  const hashedPassword = await bcrypt.hash('1', 10)
 
   await prisma.users.createMany({
     data: [
