@@ -163,25 +163,27 @@ router.get("/", auth, async (req, res) => {
     const monthlyTotal = Array(12).fill(0);
     const yearlyGroup = {};
 
-    transaksiMasuk.forEach((trx) => {
+    transaksiMasuk
+    .filter((trx) => trx.konfirmasi === true)
+    .forEach((trx) => {
       const trxDate = new Date(trx.tanggalMasuk);
-
+  
       const dayIndex = trxDate.getDay();
       const monthIndex = trxDate.getMonth();
       const year = trxDate.getFullYear();
-
+  
       const total = trx.bahanMasuk.reduce(
         (acc, item) => acc + Number(item.jumlah || 0),
         0
       );
-
+  
       weeklyTotal[dayIndex] += total;
       monthlyTotal[monthIndex] += total;
-
+  
       if (!yearlyGroup[year]) {
         yearlyGroup[year] = 0;
       }
-
+  
       yearlyGroup[year] += total;
     });
 
