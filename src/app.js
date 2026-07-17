@@ -18,6 +18,13 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
+app.get("/", (req, res) => {
+  res.send("API OK");
+});
+
+app.get("/test", (req, res) => {
+  res.json({ ok: true });
+});
 
 app.use("/users", userRoute);
 app.use("/bahan", Bahan);
