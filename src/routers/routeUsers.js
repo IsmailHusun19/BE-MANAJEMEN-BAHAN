@@ -23,7 +23,7 @@ const generateNIK = async () => {
   let exists;
 
   do {
-    nik = Math.floor(1000000000 + Math.random() * 9000000000).toString(); // 10 digit
+    nik = Math.floor(1000000000 + Math.random() * 9000000000).toString();
     exists = await prisma.users.findUnique({ where: { nik } });
   } while (exists);
 
